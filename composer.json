@@ -1,12 +1,16 @@
 {
     "name": "bitsman/compare-entity",
     "type": "library",
+    "require": {
+        "php": "^8.1"
+    },
     "require-dev": {
-        "phpunit/php-timer": "6.0.x-dev"
+        "phpunit/phpunit": "10.0.x-dev"
     },
     "autoload": {
         "psr-4": {
-            "Bitsman\\CompareEntity\\": "src/"
+            "Bitsman\\CompareEntity\\": "src/",
+            "Bitsman\\CompareEntity\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -15,6 +19,5 @@
             "email": "franciscojavier.poncerosales@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {}
+    "minimum-stability": "dev"
 }

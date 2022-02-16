@@ -1,13 +1,13 @@
 <?php
 
-namespace Bitsman\CompareEntity\Helper;
+namespace Bitsman\CompareEntity\Service;
 
 use Bitsman\CompareEntity\Entities\ParamsInComparison;
 use Bitsman\CompareEntity\Enums\CompareEntitiesEnum;
 use Bitsman\CompareEntity\Interfaces\EntityToArrayInterface;
 
 
-abstract class CompareEntitiesService
+class CompareEntitiesService
 {
     readonly public string $globalParamPrefix;
 
@@ -27,7 +27,9 @@ abstract class CompareEntitiesService
     ): bool
     {
         $action = $action ?? CompareEntitiesEnum::ESTABLISH_PARAMS;
-        $params = $params ?? $this->getObjectProperties($object1);
+        $params = $params ?? $action === CompareEntitiesEnum::ESTABLISH_PARAMS ?
+            $this->getObjectProperties($object1) :
+            [];
 
         return (
             $this->getArrayForCompare($object1, $action, $params) ===
@@ -71,8 +73,12 @@ abstract class CompareEntitiesService
                 $arrayForCompare[$property] = $this->getArrayForCompareRecursive(
                     $value,
                     $action,
-                    array_merge($paramsInComparison->globalParams, $paramsInComparison->paramsForNextDeep[$property]),
+                    array_merge(
+                        $paramsInComparison->globalParams,
+                        $paramsInComparison->paramsForNextDeep[$property] ?? []
+                    ),
                 );
+                continue;
             }
 
             if ($this->isObjectPropertyArray($value)) {
@@ -147,12 +153,13 @@ abstract class CompareEntitiesService
         $reflection = new \ReflectionClass($class);
 
         $properties = [];
-        foreach($reflection->getProperties(
+        $reflectionProperties = $reflection->getProperties(
             (\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED) &
             ~\ReflectionProperty::IS_STATIC
-        ) as $property) {
+        );
+        foreach($reflectionProperties as $property) {
             if ($property->getDeclaringClass()->getName() === $class) {
-                $property[] = $property->getName();
+                $properties[] = $property->getName();
             }
         }
         return $properties;
