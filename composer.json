@@ -1,0 +1,20 @@
+{
+    "name": "bitsman/compare-entity",
+    "type": "library",
+    "require-dev": {
+        "phpunit/php-timer": "6.0.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bitsman\\CompareEntity\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Francisco Ponce",
+            "email": "franciscojavier.poncerosales@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
