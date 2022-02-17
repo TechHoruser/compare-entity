@@ -27,9 +27,9 @@ class CompareEntitiesService
     ): bool
     {
         $action = $action ?? CompareEntitiesEnum::ESTABLISH_PARAMS;
-        $params = $params ?? $action === CompareEntitiesEnum::ESTABLISH_PARAMS ?
+        $params = $params ?? ($action === CompareEntitiesEnum::ESTABLISH_PARAMS ?
             $this->getObjectProperties($object1) :
-            [];
+            []);
 
         return (
             $this->getArrayForCompare($object1, $action, $params) ===
@@ -56,6 +56,7 @@ class CompareEntitiesService
 
         $arrayForCompare = [];
         foreach ($object as $property => $value) {
+            $skipLoopIfNotObjectOrObjectArray = false;
             if (
                 (
                     $action === CompareEntitiesEnum::SKIP_PARAMS &&
@@ -66,7 +67,10 @@ class CompareEntitiesService
                     !in_array($property, $paramsInComparison->paramsForThisDeep)
                 )
             ) {
-                continue;
+                if (count($paramsInComparison->globalParams) === 0) {
+                    continue;
+                }
+                $skipLoopIfNotObjectOrObjectArray = true;
             }
 
             if ($this->isObjectProperty($value)) {
@@ -93,6 +97,10 @@ class CompareEntitiesService
                     ),
                     $value
                 );
+                continue;
+            }
+
+            if ($skipLoopIfNotObjectOrObjectArray) {
                 continue;
             }
 
@@ -147,7 +155,7 @@ class CompareEntitiesService
         return $paramsInComparison;
     }
 
-    static private function getObjectProperties(EntityToArrayInterface $object): array
+    private function getObjectProperties(EntityToArrayInterface $object): array
     {
         $class = $object::class;
         $reflection = new \ReflectionClass($class);

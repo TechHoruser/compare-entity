@@ -33,7 +33,7 @@ class CompareEntitiesServiceTest extends TestCase
         ?array $params = null,
     ): void
     {
-        if ($this->dataName() === 'Deep Comparison WITH SKIP_PARAM Action (1) KO') xdebug_break();
+        if ($this->dataName() === 'Deep Comparison WITH Establish CreatedAt param Globally KO') xdebug_break();
         $this->assertEquals(
             $expectedAreEquals,
             $this->compareEntitiesService->areEquals($entity1, $entity2, $action, $params)
@@ -48,6 +48,16 @@ class CompareEntitiesServiceTest extends TestCase
                 true,
                 new Bar(1, $datetime),
                 new Bar(1, $datetime),
+            ],
+            'Basic Comparison KO' => [
+                false,
+                new Bar(1, $datetime),
+                new Bar(2, $datetime),
+            ],
+            'Basic Comparison With DateTime object KO' => [
+                false,
+                new Bar(1, $datetime),
+                new Bar(1, new \DateTime()),
             ],
             'Deep Comparison Need certain params OK' => [
                 true,
@@ -139,8 +149,46 @@ class CompareEntitiesServiceTest extends TestCase
                 CompareEntitiesEnum::SKIP_PARAMS,
                 ['^.createdAt'],
             ],
-            'Only Deep Comparison WITH Specific params OK' => [
+            'Deep Comparison WITH Establish CreatedAt param Globally OK' => [
+                true,
+                new Foo(
+                    'name',
+                    [new Bar(1, $datetime)],
+                    new Bar(1, $datetime),
+                    new NoToArrayEntity('a'),
+                    $datetime,
+                ),
+                new Foo(
+                    'name',
+                    [new Bar(1, $datetime)],
+                    new Bar(1, $datetime),
+                    new NoToArrayEntity('b'),
+                    $datetime,
+                ),
+                CompareEntitiesEnum::ESTABLISH_PARAMS,
+                ['^.createdAt'],
+            ],
+            'Deep Comparison WITH Establish CreatedAt param Globally KO' => [
                 false,
+                new Foo(
+                    'name',
+                    [new Bar(1, $datetime)],
+                    new Bar(1, $datetime),
+                    new NoToArrayEntity('a'),
+                    $datetime,
+                ),
+                new Foo(
+                    'name',
+                    [new Bar(1, $datetime)],
+                    new Bar(1, new \DateTime()),
+                    new NoToArrayEntity('b'),
+                    $datetime,
+                ),
+                CompareEntitiesEnum::ESTABLISH_PARAMS,
+                ['^.createdAt'],
+            ],
+            'Only Deep Comparison WITH Specific params OK' => [
+                true,
                 new Foo(
                     'name1',
                     [new Bar(1, new \DateTime())],
@@ -157,16 +205,6 @@ class CompareEntitiesServiceTest extends TestCase
                 ),
                 CompareEntitiesEnum::ESTABLISH_PARAMS,
                 ['bar.number', 'bars.number'],
-            ],
-            'Basic Comparison KO' => [
-                false,
-                new Bar(1, $datetime),
-                new Bar(2, $datetime),
-            ],
-            'Basic Comparison With DateTime object KO' => [
-                false,
-                new Bar(1, $datetime),
-                new Bar(1, new \DateTime()),
             ],
         ];
     }
